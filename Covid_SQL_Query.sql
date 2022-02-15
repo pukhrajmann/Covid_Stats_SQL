@@ -40,11 +40,10 @@ SELECT MAX(total_cases) as total_cases, MAX(cast(total_deaths as int)) as total_
 FROM covid_stats.dbo.covid_deaths
 WHERE continent IS NOT NULL
 
---CTE
+--Running Vaccination Total For each Country
 With pop_vaccs (continent, location, date, population, new_vaccinations, running_vaccs_total)
 as
 (
---Running Vaccination Total For each Country
 SELECT deaths.continent, deaths.location, deaths.date, deaths.population, vaccs.new_vaccinations,
 SUM(cast(vaccs.new_vaccinations as bigint)) OVER (Partition by deaths.location ORDER BY deaths.location, deaths.date) as running_vaccs_total
 FROM covid_stats.dbo.covid_deaths as deaths
@@ -52,8 +51,6 @@ JOIN covid_stats.dbo.covid_vaccinations as vaccs
      ON deaths.location = vaccs.location
 	 and deaths.date = vaccs.date
 WHERE deaths.continent IS NOT NULL
-
 )
-
 SELECT *
 FROM pop_vaccs
